@@ -27,7 +27,11 @@ struct CustomTabBar: View {
         .frame(height: 82)
         .background(Color.black)
     }
+}
+
+private extension CustomTabBar {
     
+    //MARK: Buttons to go to Posts and profile Views
     @ViewBuilder
     func ButtonOnTabBar(tab: Tabs, text: String, imageName: String) -> some View {
         Button {
@@ -56,6 +60,7 @@ struct CustomTabBar: View {
         .tint(selectedTab == tab ? .white : .gray)
     }
     
+    // MARK: Button to create a new post
     var newPostButton: some View {
         Button {
             createNewPost.toggle()
@@ -75,10 +80,11 @@ struct CustomTabBar: View {
             }
         }
         .fullScreenCover(isPresented: $createNewPost) {
-            CreateNewPostView { post in recentPosts.insert(post, at: 0)
-            }
+            CreateNewPostView(viewModel: CreateNewPostViewModel(onPost:
+            { post in recentPosts.insert(post, at: 0)}))
         }
     }
+    
 }
 
 struct CustomTabBar_Previews: PreviewProvider {

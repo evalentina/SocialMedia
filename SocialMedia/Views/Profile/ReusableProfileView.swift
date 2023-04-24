@@ -6,20 +6,12 @@
 //
 
 import SwiftUI
-import Firebase
-import FirebaseFirestore
 import SDWebImageSwiftUI
 
 struct ReusableProfileView: View {
     
-    var user: User
-    
-    @State private var isLoading: Bool = false
-    @State private var fetchedPosts: [Post] = []
-    
-    // MARK: UserDefaults
-    @AppStorage(AppStorageInfo.logStatus.rawValue) private var logStatus: Bool = false
-    
+    @StateObject var viewModel : ProfileViewModel
+
     var body: some View {
         VStack(spacing: 15) {
             
@@ -30,14 +22,19 @@ struct ReusableProfileView: View {
         }
         .background(Color.darkColor)
     }
+
+}
+
+extension ReusableProfileView {
     
+    // MARK: The top stack containing user information
     var userInformation: some View {
         
         VStack(alignment: .center) {
             Spacer()
             
-            WebImage(url: user.userImageURL).placeholder(
-                Image(ImageName.profileImage.rawValue)
+            WebImage(url: viewModel.user?.userImageURL).placeholder(
+                Image(ImageName.placeholderImage.rawValue)
                     .resizable()
             )
             .resizable()
@@ -46,9 +43,9 @@ struct ReusableProfileView: View {
             .clipShape(Circle())
             .overlay(
                 imageOverlay
-            )
+           )
             
-            Text(user.userName)
+            Text(viewModel.user?.userName ?? "")
                 .font(.helvetica(.medium, size: 20))
                 .foregroundColor(.white)
                 .padding(15)
@@ -70,7 +67,8 @@ struct ReusableProfileView: View {
             backgroundBanner
         )
     }
-        
+    
+    // MARK: Overlay for the user's photo
     var imageOverlay: some View {
         Circle()
             .stroke(Color.black, lineWidth: 7).overlay(
@@ -81,6 +79,7 @@ struct ReusableProfileView: View {
             )
     }
     
+    // MARK: Banner on the background of the top stack containing user information
     var backgroundBanner: some View {
         VStack {
             Image(ImageName.profileBanner.rawValue)
@@ -89,32 +88,27 @@ struct ReusableProfileView: View {
         }
     }
     
+    // MARK: User posts
     var userPosts: some View {
         
         VStack(alignment: .leading) {
-            Text("\(user.userName)'s Posts:")
+            Text("\(viewModel.user?.userName ?? "")'s Posts:")
                 .font(.helvetica(.medium, size: 20))
                 .foregroundColor(.white)
                 .padding(.leading, 12)
             
-            ReusablePostsView(basedOnUID: true, uid: user.userUID, posts: $fetchedPosts)
+            ReusablePostsView(basedOnUID: true, uid: viewModel.user?.userUID ?? "", posts: $viewModel.fetchedPosts)
             
         }
         .background(Color.darkColor)
     }
-    
-    func logOutUser() {
-        isLoading = true
-        try? Auth.auth().signOut()
-        logStatus = false
-    }
-    
+ 
     
 }
 
 struct ReusableProfileview_Previews: PreviewProvider {
     static var previews: some View {
-        ReusableProfileView(user: User(userName: "Velentin", userEmail: "evdokimova@gmail.com", userPassword: "123456", userImageURL: URL(string: "https://unsplash.com/photos/_H6wpor9mjs")!, userUID: "uerUID"))
+        ReusableProfileView(viewModel: ProfileViewModel(user: .dummy))
     }
 }
 

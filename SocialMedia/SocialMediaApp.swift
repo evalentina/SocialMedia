@@ -8,10 +8,11 @@
 import SwiftUI
 import Firebase
 
+
 @main
 struct SocialMediaApp: App {
     
-    @AppStorage(AppStorageInfo.logStatus.rawValue) private var logStatus: Bool = false
+    //@AppStorage(AppStorageInfo.logStatus.rawValue) private var logStatus: Bool = false
     
     init() {
         FirebaseApp.configure()
@@ -19,11 +20,13 @@ struct SocialMediaApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if logStatus {
+           
+            if SettingsManager.shared.logStatus {
                 MainView()
             } else {
                 LoginView()
             }
+            
         }
     }
 }

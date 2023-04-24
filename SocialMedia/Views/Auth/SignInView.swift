@@ -6,29 +6,12 @@
 //
 
 import SwiftUI
-import FirebaseAuth
-import FirebaseStorage
-import FirebaseFirestore
+import PhotosUI
 
 struct SigninView: View {
     
-    @State private var email: String = ""
-    @State private var password: String = ""
-    @State private var firstname: String = ""
-    @State private var isPickerShowing: Bool = false
-    @State private var selectedImage: UIImage?
-    
-    @State private var loginInAccount : Bool = false
-    @State private var isShowingLoginError: Bool = false
-    @State private var errorMessage : String = ""
-    @State private var isLoading: Bool = false
-    
-    // MARK: UserDefaults
-    @AppStorage(AppStorageInfo.logStatus.rawValue) private var logStatus: Bool = false
-    @AppStorage(AppStorageInfo.imageURL.rawValue) private var imageURL: URL?
-    @AppStorage(AppStorageInfo.userName.rawValue) private var userNameStored: String = ""
-    @AppStorage(AppStorageInfo.userID.rawValue) private var userID: String = ""
-    
+    @StateObject private var viewModel = SignInViewModel()
+    @State private var photoItem: PhotosPickerItem?
     
     var body: some View {
         VStack(spacing: 0) {
@@ -63,17 +46,19 @@ struct SigninView: View {
         }
         .overlay(content: {
             // MARK: LoadingView after the Sign in button has been pressed, while the user's data is being loaded
-            isLoading ? LoadingView(isShowing: $isLoading) : nil
-            
-            // MARK: Background objects
-            //OverlayBackground()
+            viewModel.isLoading ? LoadingView(isShowing: $viewModel.isLoading) : nil
+
         })
+        
         // MARK: When user data is entered incorrectly
-        .alert(errorMessage, isPresented: $isShowingLoginError, actions: {})
+        .alert(viewModel.errorMessage, isPresented: $viewModel.isShowingLoginError, actions: {})
         .background(Color.black)
         .ignoresSafeArea()
         .vAlign(.top)
     }
+}
+
+private extension SigninView {
     
     // MARK: Login Image
     var loginImage: some View {
@@ -89,7 +74,6 @@ struct SigninView: View {
                 // MARK: Objects in the background of the image
                 OverlayBackground()
             )
-        
     }
     
     // MARK: Welcome text
@@ -102,12 +86,13 @@ struct SigninView: View {
     var profileView: some View {
         VStack {
             ZStack {
-                if let selectedImage = selectedImage {
-                    Image(uiImage: selectedImage)
+                if let userProfileImageData = viewModel.userProfileImageData, let image = UIImage(data: userProfileImageData) {
+                    Image(uiImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .clipShape(Circle())
                         .contentShape(Circle())
+                    
                 } else {
                     Image(ImageName.profileImage.rawValue)
                         .resizable()
@@ -123,26 +108,39 @@ struct SigninView: View {
         
         .frame(width: 200)
         .onTapGesture {
-            isPickerShowing.toggle()
+            viewModel.isPickerShowing.toggle()
         }
-        .sheet(isPresented: $isPickerShowing, content: {
-            ImagePicker(selectedImage: $selectedImage, isPickerShowing: $isPickerShowing)
-        })
+        .photosPicker(isPresented: $viewModel.isPickerShowing, selection: $photoItem)
+        .onChange(of: photoItem) { newValue in
+            if let newValue {
+                Task {
+                    do {
+                        guard let imageData = try await newValue.loadTransferable(type: Data.self) else { return }
+                        await MainActor.run(body: {
+                            viewModel.userProfileImageData = imageData
+                        })
+                    } catch {
+                        
+                    }
+                }
+            }
+            
+        }
     }
     
     // MARK: Firstname Text Field, Email Text Field and Password Secure Field
     var textFields: some View {
         VStack(spacing: 15) {
             
-            TextField("Enter your email...", text: $firstname)
+            TextField("Enter your first name...", text: $viewModel.firstname)
+                .textFieldModifier(fontSize: 18, backgroundColor: .white, textColor: .black)
+            
+            
+            TextField("Enter your email...", text: $viewModel.email)
                 .textFieldModifier(fontSize: 18, backgroundColor: .white, textColor: .black)
                 .autocapitalization(.none)
             
-            TextField("Enter your email...", text: $email)
-                .textFieldModifier(fontSize: 18, backgroundColor: .white, textColor: .black)
-                .autocapitalization(.none)
-            
-            SecureField("Enter your password...", text: $password)
+            SecureField("Enter your password...", text: $viewModel.password)
                 .textContentType(.password)
                 .autocapitalization(.none)
                 .textFieldModifier(fontSize: 18, backgroundColor: .white, textColor: .black)
@@ -152,13 +150,13 @@ struct SigninView: View {
     // MARK: Sign in Button
     var signInButton: some View {
         Button("Sign in", action: {
-            registerUser()
+            viewModel.registerUser()
         })
         .padding()
         .foregroundColor(.white)
         .font(.helvetica(.bold, size: 20))
-        .disabled(isButtonDisabled())
-        .opacity(isButtonDisabled() ? 0.5 : 1)
+        .disabled(viewModel.isButtonDisabled())
+        .opacity(viewModel.isButtonDisabled() ? 0.5 : 1)
         .background(
             RoundedRectangle(cornerRadius: 15)
                 .fill(
@@ -166,11 +164,11 @@ struct SigninView: View {
                         gradient: Gradient(colors: [ .buttonFirstColor, .buttonSecondColor]),
                         startPoint: .leading,
                         endPoint: .trailing))
-                .addBorder(Color.white, width: isButtonDisabled() ? 0 : 1, cornerRadius: 15)
+                .addBorder(Color.white, width: viewModel.isButtonDisabled() ? 0 : 1, cornerRadius: 15)
                 .frame(width: 300, height: 50)
-                
+            
         )
-        .animation(.easeIn(duration: 1), value: isButtonDisabled())
+        .animation(.easeIn(duration: 1), value: viewModel.isButtonDisabled())
     }
     
     // MARK: Register Text and Button
@@ -181,7 +179,7 @@ struct SigninView: View {
                 .font(.helvetica(.light, size: 16))
             
             Button {
-                loginInAccount.toggle()
+                viewModel.loginInAccount.toggle()
                 
             } label: {
                 Text("Login Now")
@@ -189,70 +187,16 @@ struct SigninView: View {
                     .font(.helvetica(.medium, size: 17))
             }
         }
-        .fullScreenCover(isPresented: $loginInAccount) {
+        .fullScreenCover(isPresented: $viewModel.loginInAccount) {
             LoginView()
         }
     }
-    
-    func isButtonDisabled() -> Bool {
-        if firstname == "" || email == "" || password == "" || selectedImage == nil {
-            return true
-        } else {
-            return false
-        }
-    }
-    
-    func registerUser() {
-        closeAllKeyboards()
-        isLoading = true
-        Task {
-            do {
-                try await Auth.auth().createUser(withEmail: email, password: password)
-                
-                // MARK: Profile ImageInto Firebase Storage
-                guard let userID = Auth.auth().currentUser?.uid else {
-                    return
-                }
-                guard let imageData = selectedImage?.jpegData(compressionQuality: 0.5) else { return }
-                let storageRef = Storage.storage().reference().child("Profile_image").child(userID)
-                let _ = try await storageRef.putDataAsync(imageData)
-                let downloadURL = try await storageRef.downloadURL()
-               let user = User(userName: firstname, userEmail: email, userPassword: password, userImageURL: downloadURL, userUID: userID)
-                
-                let _ = try Firestore.firestore().collection("Users").document(userID).setData(from: user, completion: {
-                    error in
-                    if error == nil {
-                        print("User was successfully saved")
-                        userNameStored = firstname
-                        self.userID = userID
-                        imageURL = downloadURL
-                        logStatus = true
-                    }
-                })
-
-            } catch {
-                // MARK: Delete an account in case of failure
-                try await Auth.auth().currentUser?.delete()
-                await setError(error)
-            }
-        }
-    }
-    
-    func setError(_ error: Error) async {
-        
-        await MainActor.run(body: {
-            errorMessage = error.localizedDescription
-            isShowingLoginError.toggle()
-            isLoading = false
-        })
-         
-    }
-    
 }
 
 struct SigninView_Previews: PreviewProvider {
     static var previews: some View {
         SigninView()
+        
     }
 }
 

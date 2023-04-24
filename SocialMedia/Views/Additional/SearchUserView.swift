@@ -6,25 +6,22 @@
 //
 
 import SwiftUI
-import FirebaseFirestore
 
 struct SearchUserView: View {
     
-    @State private var fetchedUsers: [User] = []
-    @State private var searchText: String = ""
+    @StateObject private var viewModel = SearchUserViewModel()
     
-    @Environment(\.dismiss) private var dismiss
-    
+    // MARK: Make the SearchBar visible on a dark background
     init() {
         UISearchBar.appearance().overrideUserInterfaceStyle = .dark
     }
     
     var body: some View {
         List {
-            ForEach(fetchedUsers) { user in
+            ForEach(viewModel.fetchedUsers) { user in
                 NavigationLink {
                     
-                    ReusableProfileView(user: user)
+                    ReusableProfileView(viewModel: ProfileViewModel(user: user))
                 } label : {
                     Text(user.userName)
                         .font(.helvetica(.medium, size: 18))
@@ -38,37 +35,18 @@ struct SearchUserView: View {
         .listStyle(.plain)
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Search User")
-        .searchable(text: $searchText)
+        .searchable(text: $viewModel.searchText)
         .onSubmit(of: .search,  {
             Task {
-                await searchUser()
+                await viewModel.searchUser()
             }
         })
-        .onChange(of: searchText, perform: { newValue in
+        .onChange(of: viewModel.searchText, perform: { newValue in
             if newValue.isEmpty {
-                fetchedUsers = []
+                viewModel.fetchedUsers = []
             }
         })
         
-    }
-    
-    func searchUser() async {
-        do {
-            let documents = try await Firestore.firestore().collection("Users")
-                .whereField("userName", isGreaterThanOrEqualTo: searchText)
-                .whereField("userName", isLessThanOrEqualTo: "\(searchText)\u{f8ff}")
-                .getDocuments()
-            
-            let users = try documents.documents.compactMap { doc -> User? in try doc.data(as: User.self)
-            }
-            // UI must be updated on Main Thread
-            await MainActor.run(body: {
-                fetchedUsers = users
-            })
-            
-        } catch {
-            print(error.localizedDescription)
-        }
     }
 }
 

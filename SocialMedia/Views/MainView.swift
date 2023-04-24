@@ -6,15 +6,10 @@
 //
 
 import SwiftUI
-import Foundation
 
 struct MainView: View {
     
     @State private var selectedTab: Tabs = .content
-    
-    init() {
-        UITabBar.appearance().isHidden = true
-    }
     
     var body: some View {
         ZStack {
@@ -25,7 +20,7 @@ struct MainView: View {
                     } else {
                         ProfileView()
                     }
-                }
+                }.preferredColorScheme(.dark)
             }
             VStack {
                 Spacer()

@@ -20,6 +20,7 @@ enum ImageName: String {
     case homekit
     case plus
     case trash
+    case placeholderImage
     case logOut = "rectangle.portrait.and.arrow.right"
     case person = "person.circle.fill"
     case thumbsdownFill = "hand.thumbsdown.circle.fill"

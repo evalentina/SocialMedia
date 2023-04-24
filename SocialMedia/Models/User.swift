@@ -7,7 +7,6 @@
 
 import Foundation
 import FirebaseFirestoreSwift
-import UIKit
 
 struct User: Identifiable, Codable {
     @DocumentID var id: String?
@@ -26,6 +25,13 @@ struct User: Identifiable, Codable {
         case userUID
     }
     
+}
+
+extension User {
+    
+    static var dummy: User {
+        .init(userName: "Velentina", userEmail: "evdokimova@gmail.com", userPassword: "123456", userImageURL: URL(string: "https://unsplash.com/photos/_H6wpor9mjs")!, userUID: "uerUID")
+    }
 }
 
 

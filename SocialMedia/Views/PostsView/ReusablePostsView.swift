@@ -17,8 +17,10 @@ struct ReusablePostsView: View {
     
     @State private var isFetching: Bool = true
     @State private var paginationDoc: QueryDocumentSnapshot?
+    //@StateObject private var viewModel : PostCardViewModel
     
     var body: some View {
+        
         ScrollView(showsIndicators: false) {
             LazyVStack {
                 if isFetching {
@@ -36,12 +38,12 @@ struct ReusablePostsView: View {
                         // MARK: Displaying posts
                         
                         Posts()
+                        Spacer(minLength: 70)
                     }
                 }
             }
             
         }
-
         .refreshable{
             guard !basedOnUID else { return }
             isFetching = true
@@ -55,43 +57,50 @@ struct ReusablePostsView: View {
             guard posts.isEmpty else { return }
             await fetchPosts()
         }
-        .padding(12)     
+        
+        .padding(12)
+        
     }
     // MARK: Dispaying fetched posts
     
     @ViewBuilder
     func Posts() -> some View {
         ForEach(posts) { post in
-            PostCardView(post: post) { updatedPost in
-                
-                if let index = posts.firstIndex(where: { post in
-                    post.id == updatedPost.id
-                }) {
-                    posts[index].likedIDs = updatedPost.likedIDs
-                    posts[index].dislikedIDs = updatedPost.dislikedIDs
-                }
-                
-            } onDelete: {
-                // Removing posts from the array
-                withAnimation(.easeOut(duration: 0.2)) {
-                    posts.removeAll { post.id == $0.id }
+            VStack {
+                PostCardView(viewModel: PostCardViewModel(post: post) { updatedPost in
+                    
+                    if let index = posts.firstIndex(where: { post in
+                        post.id == updatedPost.id
+                    }) {
+                        posts[index].likedIDs = updatedPost.likedIDs
+                        posts[index].dislikedIDs = updatedPost.dislikedIDs
+                    }
+                    
+                } onDelete: {
+                    // Removing posts from the array
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        posts.removeAll { post.id == $0.id }
+                        
+                    }
+                    
+                })
+                .onAppear {
+                    
+                    //When last post appear fetching new post
+                    if post.id == posts.last?.id && paginationDoc != nil {
+                        Task {
+                            await fetchPosts()
+                        }
+                    }
                     
                 }
                 
-            }
-            .onAppear {
-                
-                //When last post appear fetching new post
-                if post.id == posts.last?.id && paginationDoc != nil {
-                    Task {
-                        await fetchPosts()
-                    }
-                }
+                Divider()
+                    .background(Color.black)
                 
             }
-            Divider()
-                .padding(.horizontal, -15)
         }
+        
     }
     
     func fetchPosts() async {
