@@ -121,14 +121,14 @@ private extension LoginView {
                 .font(.helvetica(.light, size: 16))
             
             Button {
-                viewModel.createAccount.toggle()
+                viewModel.createAnAccount.toggle()
             } label: {
                 Text("Register Now")
                     .foregroundColor(.white)
                     .font(.helvetica(.medium, size: 17))
             }
         }
-        .fullScreenCover(isPresented: $viewModel.createAccount) {
+        .fullScreenCover(isPresented: $viewModel.createAnAccount) {
             SigninView()
             
         }

@@ -10,7 +10,7 @@ import SDWebImageSwiftUI
 
 struct ProfileView: View {
 
-    @StateObject var viewModel = ProfileViewModel(user: nil)
+    @StateObject var viewModel = ProfileViewModel()
 
     var body: some View {
         
@@ -28,21 +28,10 @@ struct ProfileView: View {
             .background(Color.darkColor)
             .toolbarBackground(.hidden)
             .refreshable {
-                
-                // MARK: Refresh user data
-                self.viewModel.user = nil
-                await  viewModel.fetchUserData()
+                await viewModel.refrechData()
             }
             .task {
-                
-                // MARK: Fetch only for the first time
-                if self.viewModel.user != nil {
-                    return
-                }
-                await  viewModel.fetchUserData()
-            }
-            .overlay {
-                viewModel.isLoading ? LoadingView(isShowing: $viewModel.isLoading) : nil
+                await viewModel.fetchTask()
             }
         }
     }

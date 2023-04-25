@@ -9,10 +9,7 @@ import SwiftUI
 
 struct CustomTabBar: View {
     
-    @Binding var selectedTab: Tabs
-    
-    @State private var createNewPost: Bool = false
-    @State private var recentPosts: [Post] = []
+    @ObservedObject var viewModel : TabBarViewModel
     
     var body: some View {
         HStack {
@@ -35,10 +32,10 @@ private extension CustomTabBar {
     @ViewBuilder
     func ButtonOnTabBar(tab: Tabs, text: String, imageName: String) -> some View {
         Button {
-            selectedTab = tab
+            viewModel.selectedTab = tab
         } label: {
             GeometryReader { geo in
-                if selectedTab == tab {
+                if viewModel.selectedTab == tab {
                     Rectangle()
                         .fill(
                             LinearGradient(colors: [.buttonFirstColor, .buttonSecondColor], startPoint: .topTrailing, endPoint: .bottom)
@@ -57,13 +54,13 @@ private extension CustomTabBar {
                 .frame(width: geo.size.width, height: geo.size.height)
             }
         }
-        .tint(selectedTab == tab ? .white : .gray)
+        .tint(viewModel.selectedTab == tab ? .white : .gray)
     }
     
     // MARK: Button to create a new post
     var newPostButton: some View {
         Button {
-            createNewPost.toggle()
+            viewModel.createNewPost.toggle()
         } label: {
             VStack(alignment: .center, spacing: 4) {
                 ZStack {
@@ -79,9 +76,9 @@ private extension CustomTabBar {
                     .foregroundColor(.white)
             }
         }
-        .fullScreenCover(isPresented: $createNewPost) {
+        .fullScreenCover(isPresented: $viewModel.createNewPost) {
             CreateNewPostView(viewModel: CreateNewPostViewModel(onPost:
-            { post in recentPosts.insert(post, at: 0)}))
+                                                                    { post in viewModel.recentPosts.insert(post, at: 0)}))
         }
     }
     
@@ -89,7 +86,7 @@ private extension CustomTabBar {
 
 struct CustomTabBar_Previews: PreviewProvider {
     static var previews: some View {
-        CustomTabBar(selectedTab: .constant(.content))
+        CustomTabBar(viewModel: TabBarViewModel())
     }
 }
 

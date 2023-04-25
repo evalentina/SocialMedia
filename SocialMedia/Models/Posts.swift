@@ -37,6 +37,6 @@ struct Post: Identifiable, Codable, Equatable, Hashable {
 extension Post {
     
     static var dummy: Post {
-        .init(text: "Post Text", userName: "Yana", userUID: "vd", userImageURL: URL(string: "https://img.freepik.com/free-photo/neon-tropical-monstera-leaf-banner_53876-138943.jpg?w=2000")!)
+        .init(text: "Dummy Text", userName: "Dummy", userUID: "0", userImageURL: URL(string: "https://img.freepik.com/free-photo/neon-tropical-monstera-leaf-banner_53876-138943.jpg?w=2000")!)
     }
 }

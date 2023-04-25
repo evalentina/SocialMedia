@@ -30,7 +30,7 @@ struct User: Identifiable, Codable {
 extension User {
     
     static var dummy: User {
-        .init(userName: "Velentina", userEmail: "evdokimova@gmail.com", userPassword: "123456", userImageURL: URL(string: "https://unsplash.com/photos/_H6wpor9mjs")!, userUID: "uerUID")
+        .init(userName: "Dummy", userEmail: "dummy@gmail.com", userPassword: "123456", userImageURL: URL(string: "https://unsplash.com/photos/_H6wpor9mjs")!, userUID: "uerUID")
     }
 }
 

@@ -10,7 +10,7 @@ import SDWebImageSwiftUI
 
 struct ReusableProfileView: View {
     
-    @StateObject var viewModel : ProfileViewModel
+    @ObservedObject var viewModel : ProfileViewModel
 
     var body: some View {
         VStack(spacing: 15) {
@@ -97,7 +97,7 @@ extension ReusableProfileView {
                 .foregroundColor(.white)
                 .padding(.leading, 12)
             
-            ReusablePostsView(basedOnUID: true, uid: viewModel.user?.userUID ?? "", posts: $viewModel.fetchedPosts)
+            ReusablePostsView(viewModel: PostsViewModel(basedOnUID: true, uid: viewModel.user?.userUID ?? "", posts: viewModel.fetchedPosts))
             
         }
         .background(Color.darkColor)

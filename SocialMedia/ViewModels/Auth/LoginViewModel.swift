@@ -14,7 +14,7 @@ final class LoginViewModel: ObservableObject {
     @Published var password: String = ""
     
     @Published var isShowingLoginError: Bool = false
-    @Published var createAccount : Bool = false
+    @Published var createAnAccount : Bool = false
     @Published var errorMessage : String = ""
     @Published var isLoading: Bool = false
     

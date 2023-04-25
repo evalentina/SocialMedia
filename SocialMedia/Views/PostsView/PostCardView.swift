@@ -10,7 +10,7 @@ import SDWebImageSwiftUI
 
 struct PostCardView: View {
 
-    @StateObject var viewModel : PostCardViewModel
+    @ObservedObject var viewModel : PostCardViewModel
     
     var body: some View {
         HStack {

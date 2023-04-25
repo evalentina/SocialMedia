@@ -9,12 +9,12 @@ import SwiftUI
 
 struct PostsView: View {
     
-    @State private var recentPosts: [Post] = []
+    @StateObject private var viewModel = PostsViewModel()
 
     var body: some View {
         
         NavigationStack {
-            ReusablePostsView(posts: $recentPosts)
+            ReusablePostsView(viewModel: viewModel)
                 .toolbar {
                    toolBarContent()
                 }

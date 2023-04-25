@@ -9,13 +9,13 @@ import SwiftUI
 
 struct MainView: View {
     
-    @State private var selectedTab: Tabs = .content
+    @StateObject private var viewModel = TabBarViewModel()
     
     var body: some View {
         ZStack {
             VStack {
-                TabView(selection: $selectedTab) {
-                    if selectedTab.rawValue == 0 {
+                TabView(selection: $viewModel.selectedTab) {
+                    if viewModel.selectedTab.rawValue == 0 {
                         PostsView()
                     } else {
                         ProfileView()
@@ -24,7 +24,7 @@ struct MainView: View {
             }
             VStack {
                 Spacer()
-                CustomTabBar(selectedTab: $selectedTab)
+                CustomTabBar(viewModel: viewModel)
             }
         }
         

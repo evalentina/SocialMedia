@@ -9,6 +9,7 @@
 import FirebaseAuth
 import FirebaseFirestore
 
+@MainActor
 final class ProfileViewModel: ObservableObject {
     
     @Published var user: User?
@@ -18,7 +19,7 @@ final class ProfileViewModel: ObservableObject {
     // MARK: UserDefaults
     @Published var settings = SettingsManager.shared
     
-    init(user: User?) {
+    init(user: User? = nil) {
         self.user = user
     }
     
@@ -34,5 +35,19 @@ final class ProfileViewModel: ObservableObject {
         await MainActor.run(body: {
             self.user = user
         })
+    }
+    
+    func refrechData() async {
+        // MARK: Refresh user data
+        self.user = nil
+        await fetchUserData()
+    }
+    
+    func fetchTask() async {
+        // MARK: Fetch only for the first time
+        if self.user != nil {
+            return
+        }
+        await fetchUserData()
     }
 }

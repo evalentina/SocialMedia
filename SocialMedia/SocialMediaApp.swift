@@ -12,8 +12,6 @@ import Firebase
 @main
 struct SocialMediaApp: App {
     
-    //@AppStorage(AppStorageInfo.logStatus.rawValue) private var logStatus: Bool = false
-    
     init() {
         FirebaseApp.configure()
     }

@@ -7,15 +7,18 @@
 
 import Firebase
 
+@MainActor
 final class PostsViewModel: ObservableObject {
     
     @Published var basedOnUID: Bool = false
     @Published var uid: String = ""
-    @Published var posts: [Post]
+    @Published var posts: [Post] = []
     @Published var isFetching: Bool = true
     @Published var paginationDoc: QueryDocumentSnapshot?
     
-    init(posts: [Post]) {
+    init(basedOnUID: Bool = false, uid: String = "", posts: [Post] = []) {
+        self.basedOnUID = basedOnUID
+        self.uid = uid
         self.posts = posts
     }
     
@@ -52,6 +55,23 @@ final class PostsViewModel: ObservableObject {
             print(error.localizedDescription)
         }
     }
+    
+    func refrechData() async {
+        guard !basedOnUID else { return }
+        isFetching = true
+        posts = []
+        paginationDoc = nil
+        await self.fetchPosts()
+    }
+    
+    func taskData() async {
+        // MARK: Fetching only one time
+        
+        guard posts.isEmpty else { return }
+        await fetchPosts()
+    }
+    
+    
     
     
     
