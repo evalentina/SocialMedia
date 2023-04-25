@@ -2,6 +2,7 @@
 
 ### Features 
 - SwiftUI
+- MVVM
 - Firebase
 
 ### Result
