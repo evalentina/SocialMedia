@@ -25,7 +25,7 @@ struct ReusableProfileView: View {
 
 }
 
-extension ReusableProfileView {
+private extension ReusableProfileView {
     
     // MARK: The top stack containing user information
     var userInformation: some View {

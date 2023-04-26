@@ -25,17 +25,9 @@ struct LoadingView: View {
     }
 }
 
-struct BindingViewPreview : View {
-     @State private var value = true
-
-     var body: some View {
-          LoadingView(isShowing: $value)
-     }
-}
-
-struct BindingView_Previews : PreviewProvider {
+struct LoadingView_Previews : PreviewProvider {
     static var previews: some View {
-        BindingViewPreview()
+        LoadingView(isShowing: .constant(true))
     }
 }
 

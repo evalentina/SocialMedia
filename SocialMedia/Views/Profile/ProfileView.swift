@@ -37,7 +37,7 @@ struct ProfileView: View {
     }
 }
 
-extension ProfileView {
+private extension ProfileView {
     
     // MARK: Toobar content
     @ToolbarContentBuilder

@@ -30,7 +30,7 @@ struct ReusablePostsView: View {
                     } else {
                         // MARK: Displaying posts
                         
-                        Posts()
+                        posts()
                     }
                 }
             }
@@ -43,13 +43,13 @@ struct ReusablePostsView: View {
             await viewModel.taskData()
         }
         
-        .padding(12)
-        
+        .padding(12)        
     }
+}
+private extension ReusablePostsView {
     // MARK: Dispaying fetched posts
-    
     @ViewBuilder
-    func Posts() -> some View {
+    func posts() -> some View {
         ForEach(viewModel.posts) { post in
             VStack {
                 PostCardView(viewModel: PostCardViewModel(post: post) { updatedPost in
@@ -88,6 +88,7 @@ struct ReusablePostsView: View {
         
     }
     
-    
 }
+
+
 

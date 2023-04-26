@@ -24,7 +24,7 @@ struct PostsView: View {
     }
 }
 
-extension PostsView {
+private extension PostsView {
     // MARK: Toobar content
     @ToolbarContentBuilder
     private func toolBarContent() -> some ToolbarContent {

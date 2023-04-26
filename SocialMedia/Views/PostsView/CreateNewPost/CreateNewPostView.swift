@@ -58,7 +58,10 @@ struct CreateNewPostView: View {
         }
         
     }
-    
+
+}
+
+private extension CreateNewPostView {
     // MARK: Post Button and Cancel Post Button
     var postButton: some View {
         HStack {
@@ -165,6 +168,7 @@ struct CreateNewPostView: View {
         }
         .background(Color.black)
     }
+    
 }
 
 struct CreateNewPostsView_Previews: PreviewProvider {

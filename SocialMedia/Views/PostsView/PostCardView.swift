@@ -26,17 +26,8 @@ struct PostCardView: View {
             // MARK: Delete post if it's author's post
             
             if viewModel.post.userUID == viewModel.settings.userID {
-                Menu {
-                    Button("Delete Post", role: .destructive, action: viewModel.deletePost)
-                } label : {
-                    Image(systemName: ImageName.ellipsis.rawValue)
-                        .font(.caption)
-                        .rotationEffect(.degrees(-90))
-                        .foregroundColor(.white)
-                        .contentShape(Rectangle())
-                        .padding(8)
-                }
-                .offset(x: 8)
+                
+                menuForPostDelete
             }
         })
         .onAppear {
@@ -49,7 +40,7 @@ struct PostCardView: View {
 
 }
 
-extension PostCardView {
+private extension PostCardView {
     
     // MARK: User's image
     var webImage: some View {
@@ -119,6 +110,20 @@ extension PostCardView {
         .foregroundColor(.black)
         .padding(8)
         
+    }
+    
+    var menuForPostDelete: some View {
+        Menu {
+            Button("Delete Post", role: .destructive, action: viewModel.deletePost)
+        } label : {
+            Image(systemName: ImageName.ellipsis.rawValue)
+                .font(.caption)
+                .rotationEffect(.degrees(-90))
+                .foregroundColor(.white)
+                .contentShape(Rectangle())
+                .padding(8)
+        }
+        .offset(x: 8)
     }
     
     
